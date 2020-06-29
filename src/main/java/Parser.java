@@ -3,13 +3,53 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.text.DecimalFormat;
+import java.util.Objects;
+
+import static java.lang.Thread.sleep;
 
 public class Parser {
+    static long seconds = 1000;
+    static long minute = seconds * 60;
+    static long hour = minute * 60;
 
 
-    public static void main(String[] args) {
-      new Parser().run();
-//        System.out.println("hello world");
+    public static void main(String[] args) throws IOException {
+        if (args.length > 0 && "h".equals(args[0])) {
+            System.out.println("Default time: 4 hours  \n" +
+                    "To set a specific time, enter the number of seconds after <>.jar");
+            return;
+        }
+        long period;
+        if (args.length > 0) {
+            long arg1 = Long.parseLong(args[0]); // по умолчанию - секунды
+            period = seconds * arg1;
+        } else {
+            period = hour * 4;
+        }
+        DecimalFormat decimalFormat = new DecimalFormat("#.###");
+        System.out.println("The process is running; period is " + decimalFormat.format((float) period / minute) + " minutes");
+        System.out.println("To stop the process press ctrl+c or close the terminal (Windows)" +
+                "To make sure that the process is dead check this pid in the task Manager " + ManagementFactory.getRuntimeMXBean().getName());
+        System.out.close();
+        System.in.close();
+
+        process(period);
+    }
+
+    static void process(long time) {
+        Thread run = new Thread(() -> {
+            while (true) {
+                try {
+                    new Parser().run();
+                    sleep(time);
+                } catch (InterruptedException ex) {
+                    System.out.println("end");
+                }
+            }
+        });
+        run.start();
     }
 
     void run() {
@@ -22,25 +62,10 @@ public class Parser {
 
             String s2 = new InputHandler(o).handle();
             new FileCreator(s2).createFile();
-//            JSONArray data = getJSON(s2);
-//            Map<String, String> map = new HashMap<>();
-//            data.forEach(new Consumer() {
-//                @Override
-//                public void accept(Object o) {
-//                    String name1 = (String) ((JSONObject) o).get("name");
-//                    String coordinats = (String) ((JSONObject) o).get("latitude") +
-//                            ":"
-//                            + (String) ((JSONObject) o).get("longitude");
-//                    map.put(name1, coordinats);
-//                }
-//            });
-//            System.out.println(getJSON(s2).toString());
-//            System.out.println(map.toString());
-            //            System.out.println(cars);
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
     }
 
-
 }
+

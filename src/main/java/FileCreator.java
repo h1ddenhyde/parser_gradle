@@ -19,24 +19,21 @@ public class FileCreator {
         this.input = input;
     }
 
-    public boolean createFile() throws IOException, ParseException {
+    public void createFile() throws IOException, ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-z");
         String format = dateFormat.format(new Date());
         String path = format + "_cars.txt";
 
         JSONArray data = getJSON(input);
         StringBuilder sb = new StringBuilder();
-        data.forEach(o -> {
-            String name1 = (String) ((JSONObject) o).get("name");
-            String coordinats = ((JSONObject) o).get("latitude") +
-                    ":"
-                    + ((JSONObject) o).get("longitude");
-            sb.append(name1).append(" ").append(coordinats).append("\n");
-        });
+        data.forEach(o -> sb.append("name ").append((String) ((JSONObject) o).get("name"))
+                .append(" id ").append(((JSONObject) o).get("id"))
+                .append(" latitude ").append(((JSONObject) o).get("latitude"))
+                .append(" longitude ").append(((JSONObject) o).get("longitude")).append("\n"));
 
         Files.createFile(Paths.get(path));
         Files.write(Paths.get(path), sb.toString().getBytes(), new StandardOpenOption[]{StandardOpenOption.APPEND});
-        return Files.exists(Paths.get(path));
+        Files.exists(Paths.get(path));
     }
 
     private JSONArray getJSON(String string) throws ParseException {
